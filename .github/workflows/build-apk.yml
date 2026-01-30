@@ -1,21 +1,43 @@
 name: Build APK
+
 on:
   push:
-    branches: [ main ]
+    branches: [ AR INTERNATIONAL ] # আপনার মেইন ব্রাঞ্চের নাম 'main' হলে এটি ঠিক আছে
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      # ১. কোড চেকআউট করা
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ২. জাভা সেটআপ করা (অ্যান্ড্রয়েড বিল্ডের জন্য জরুরি)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # ৩. ফ্লাটার সেটআপ করা
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
-      - run: flutter pub get
-      - run: flutter build apk --release
+
+      # ৪. প্যাকেজগুলো ডাউনলোড করা
+      - name: Install dependencies
+        run: flutter pub get
+
+      # ৫. APK বিল্ড করা (Release Mode)
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      # ৬. তৈরি হওয়া APK গিটহাবে আপলোড করা (যাতে আপনি ডাউনলোড করতে পারেন)
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: ar-international-app
           path: build/app/outputs/flutter-apk/app-release.apk
